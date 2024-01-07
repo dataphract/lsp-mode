@@ -664,14 +664,27 @@ syntax highlighting."
 
 (define-obsolete-variable-alias
   'lsp-rust-analyzer-cargo-load-out-dirs-from-check
-  'lsp-rust-analyzer-cargo-run-build-scripts
+  'lsp-rust-analyzer-cargo-build-scripts-enable
   "8.0.0")
 
-(defcustom lsp-rust-analyzer-cargo-run-build-scripts t
-  "Whether to run build scripts (`build.rs`) for more precise code analysis."
+(define-obsolete-variable-alias
+  'lsp-rust-analyzer-cargo-run-build-scripts
+  'lsp-rust-analyzer-cargo-build-scripts-enable
+  "8.0.1")
+
+(defcustom lsp-rust-analyzer-cargo-build-scripts-enable t
+  "Run build scripts (`build.rs`) for more precise code analysis."
   :type 'boolean
   :group 'lsp-rust-analyzer
-  :package-version '(lsp-mode . "8.0.0"))
+  :package-version '(lsp-mode . "8.0.1"))
+
+(defcustom lsp-rust-analyzer-cargo-build-scripts-override-command nil
+  "Override the command rust-analyzer uses to run build scripts and build
+procedural macros. The command is required to output json and should therefore
+include --message-format=json or a similar option."
+  :type 'lsp-string-vector
+  :group 'lsp-rust-analyzer
+  :package-version '(lsp-mode . "8.0.1"))
 
 (defcustom lsp-rust-analyzer-rustfmt-extra-args []
   "Additional arguments to rustfmt."
@@ -1665,9 +1678,12 @@ https://github.com/rust-lang/rust-analyzer/blob/master/docs/dev/lsp-extensions.m
                                       :noDefaultFeatures ,(lsp-json-bool lsp-rust-no-default-features)
                                       :features ,lsp-rust-features
                                       :target ,lsp-rust-analyzer-cargo-target
-                                      :runBuildScripts ,(lsp-json-bool lsp-rust-analyzer-cargo-run-build-scripts)
+                                      :buildScripts (:enable ,(lsp-json-bool lsp-rust-analyzer-cargo-build-scripts-enable)
+                                                     :overrideCommand ,lsp-rust-analyzer-cargo-build-scripts-override-command)
                                         ; Obsolete, but used by old Rust-Analyzer versions
-                                      :loadOutDirsFromCheck ,(lsp-json-bool lsp-rust-analyzer-cargo-run-build-scripts)
+                                      :runBuildScripts ,(lsp-json-bool lsp-rust-analyzer-cargo-build-scripts-enable)
+                                        ; Obsolete, but used by old Rust-Analyzer versions
+                                      :loadOutDirsFromCheck ,(lsp-json-bool lsp-rust-analyzer-cargo-build-scripts-enable)
                                       :autoreload ,(lsp-json-bool lsp-rust-analyzer-cargo-auto-reload)
                                       :useRustcWrapperForBuildScripts ,(lsp-json-bool lsp-rust-analyzer-use-rustc-wrapper-for-build-scripts)
                                       :unsetTest ,lsp-rust-analyzer-cargo-unset-test)
